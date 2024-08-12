@@ -17,7 +17,11 @@ const validationRules = {
     password: { required: true, type: 'string',minLength: 8 , maxLength: 8, regex: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,}$/ },
    role:{ 
     required: true,  type: 'string',  regex: /^(admin|employee)$/ 
-}}
+}},
+'/addOfficeTimings':{
+    startTime:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/ },
+    endTime:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/},
+}
 
     
 };

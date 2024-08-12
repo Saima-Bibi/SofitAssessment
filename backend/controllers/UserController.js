@@ -2,6 +2,7 @@ import UserModel from "../models/UserModel.js"
 import bcryptjs from 'bcryptjs'
 import { emailSender } from "../services/emailSender.js"
 import jwt from "jsonwebtoken"
+import OfficeTimeModel from "../models/officeTimeModel.js"
 
 const CreateUser =  async(req,res)=>{
 
@@ -113,4 +114,23 @@ const deleteUser = async(req,res)=>{
 
 }
 
-export {CreateUser,login, updateUser, deleteUser}
+
+const addOfficeTimings = async(req,res)=>{
+
+    try {
+        const{startTime,endTime} = req.body
+
+        const time = new OfficeTimeModel({startTime,endTime, createdBy:req.user.userId})
+        await time.save()
+
+        return res.status(200).json({message:"Office timings added successfully",time})
+    } catch (error) {
+        console.log(error)
+        return  res.status(500).json({message:"Internal server error"})
+    }
+    
+
+
+}
+
+export {CreateUser,login, updateUser, deleteUser, addOfficeTimings}
