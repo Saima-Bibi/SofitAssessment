@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs'
 import { emailSender } from "../services/emailSender.js"
 import jwt from "jsonwebtoken"
 import OfficeTimeModel from "../models/officeTimeModel.js"
+import EmployeeModel from "../models/EmployeeModel.js"
 
 const CreateUser =  async(req,res)=>{
 
@@ -55,7 +56,7 @@ const login = async (req, res) => {
         if(!isverified){
             return  res.status(401).json({message:'Invalid password'})
           }
-          const Token = jwt.sign({userId:user._id, role:user.role},process.env.SECRET_KEY,{expiresIn:"3d"})
+          const Token = jwt.sign({userId:user._id,name:user.name, role:user.role},process.env.SECRET_KEY,{expiresIn:"3d"})
           return res.status(200).json({  message: "Login succesfully", name: user.name, email: user.email,  Token }) 
 
     } catch (error) {
@@ -133,4 +134,22 @@ const addOfficeTimings = async(req,res)=>{
 
 }
 
-export {CreateUser,login, updateUser, deleteUser, addOfficeTimings}
+
+const addInOutTimings = async(req,res)=>{
+try {
+    
+     const{checkIn,checkOut} = req.body
+
+     const time = new EmployeeModel({userID: req.user.userId, name:req.user.name, checkIn,checkOut })
+     await time.save()
+
+     return res.status(200).json({message:" timings added successfully",time})
+
+} catch (error) {
+    
+    console.log(error)
+    return  res.status(500).json({message:"Internal server error"})
+}
+}
+
+export {CreateUser,login, updateUser, deleteUser, addOfficeTimings, addInOutTimings}

@@ -21,6 +21,11 @@ const validationRules = {
 '/addOfficeTimings':{
     startTime:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/ },
     endTime:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/},
+},
+'/addInOutTimings':{
+    checkIn:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/ },
+    checkOut:{ type:"string" , required: true, regex: /^(0[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM|am|pm)$/},
+    
 }
 
     
