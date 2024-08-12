@@ -1,12 +1,14 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 
-const UserSchema = new Mongoose.Schema({
+const UserSchema = new mongoose.Schema({
 
     name:{ type:String , required: true, },
     email:{ type:String , required: true,},
     password:{ type:String , required: true,},
-    role:{enum:['admin','employee']}
+    role:{enum:['admin','employee'], type:String , required: true,}
 
 },{timestamps:true})
 
-export default UserSchema 
+const UserModel = mongoose.model('User',UserSchema)
+
+export default UserModel 

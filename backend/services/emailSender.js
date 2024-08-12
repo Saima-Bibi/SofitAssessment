@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from 'nodemailer'
 
 const emailSender=(obj)=>{
 
@@ -14,7 +14,7 @@ const emailSender=(obj)=>{
 
     const mailOptions = {
         from: {
-            name:"EMS",
+            name:"SOFIT EMS",
             address:process.env.USER},
         to: obj.email,
         subject: obj.subject,
