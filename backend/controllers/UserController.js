@@ -207,6 +207,8 @@ const getAttendenceFile = async(req,res)=>{
         
         const attendances = await AttendanceModel.find()
 
+  console.log(attendances)
+
        
     const workbook = new exceljs.Workbook()
     const worksheet = workbook.addWorksheet('Attendance');
@@ -216,8 +218,8 @@ const getAttendenceFile = async(req,res)=>{
       { header: 'Day', key: 'day', width: 30 },
       { header: 'userID', key: 'userID', width: 30 },
       { header: 'Name', key: 'name', width: 30 },
-      { header: 'Check-in Time', key: 'checkInTime', width: 30 },
-      { header: 'Check-out Time', key: 'checkOutTime', width: 30 },
+      { header: 'Check-in Time', key: 'checkIn', width: 30 },
+      { header: 'Check-out Time', key: 'checkOut', width: 30 },
       { header: 'check-In-Early', key: 'checkInEarly', width: 30 },
       { header: 'check-In-Late', key: 'checkInLate', width: 30 },
       { header: 'check-Out-Early', key: 'checkOutEarly', width: 30 },
@@ -229,10 +231,10 @@ const getAttendenceFile = async(req,res)=>{
       worksheet.addRow({
         date:att.date,
         day:att.day,
-        _id: att._id,
+        userID: att.userID,
         name: att.name,
-        checkInTime: att.checkIn,
-        checkOutTime: att.checkOut,
+        checkIn: att.checkIn,
+        checkOut: att.checkOut,
         checkInEarly: att.checkInEarly,
         checkInLate:att.checkInLate,
         checkOutEarly:att.checkOutEarly,

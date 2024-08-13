@@ -14,7 +14,7 @@ userRouter.delete('/deleteUser/:id',roleBasedAccess(['admin']),validateRequest(v
 userRouter.post('/addOfficeTimings',roleBasedAccess(['admin']),validateRequest(validationRules),addOfficeTimings)
 userRouter.post('/attendence/addInOutTimings',roleBasedAccess(['employee']),validateRequest(validationRules),addInOutTimings)
 userRouter.post('/getAttendence',roleBasedAccess(['admin']),getAttendence)
-userRouter.get('/getAttendence',roleBasedAccess(['admin']),getAttendenceFile)
+userRouter.get('/getAttendenceFile',roleBasedAccess(['admin']),getAttendenceFile)
 
 
 export default userRouter
