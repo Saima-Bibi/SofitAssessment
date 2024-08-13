@@ -3,7 +3,11 @@ import bcryptjs from 'bcryptjs'
 import { emailSender } from "../services/emailSender.js"
 import jwt from "jsonwebtoken"
 import OfficeTimeModel from "../models/officeTimeModel.js"
-import EmployeeModel from "../models/EmployeeModel.js"
+
+import AttendanceModel from "../models/AttendanceModel.js"
+import moment from "moment/moment.js"
+import exceljs from 'exceljs'
+
 
 const CreateUser =  async(req,res)=>{
 
@@ -138,12 +142,36 @@ const addOfficeTimings = async(req,res)=>{
 const addInOutTimings = async(req,res)=>{
 try {
     
-     const{checkIn,checkOut} = req.body
+     const{day,checkIn,checkOut} = req.body
 
-     const time = new EmployeeModel({userID: req.user.userId, name:req.user.name, checkIn,checkOut })
+     const officeTime = await OfficeTimeModel.findOne()
+     if(!officeTime){
+      res.status(401).json({message:"office timings are not set"})
+     }
+     const officeStartTime = moment(officeTime.startTime, 'hh:mm A');
+     const officeEndTime = moment(officeTime.endTime, 'hh:mm A');
+     const employeeCheckInTime = moment(checkIn, 'hh:mm A');
+     const employeeCheckOutTime = moment(checkOut, 'hh:mm A');
+     if(checkIn > officeStartTime || checkOut > officeEndTime){
+        
+     }
+
+     const time = new AttendanceModel({
+        date: new Date(),
+        day,
+        userID: req.user.userId, 
+        name:req.user.name, 
+        checkIn,
+        checkOut,
+        checkInEarly: employeeCheckInTime.isBefore(officeStartTime),
+        checkInLate: employeeCheckInTime.isAfter(officeStartTime),
+        checkOutEarly: employeeCheckOutTime.isBefore(officeEndTime),
+        checkOutLate: employeeCheckOutTime.isAfter(officeEndTime), 
+
+      })
      await time.save()
 
-     return res.status(200).json({message:" timings added successfully",time})
+     return res.status(200).json({message:"Attendance recorded successfully",time})
 
 } catch (error) {
     
@@ -152,4 +180,91 @@ try {
 }
 }
 
-export {CreateUser,login, updateUser, deleteUser, addOfficeTimings, addInOutTimings}
+const getAttendence = async(req,res)=>{
+ try {
+    
+
+    const attendances = await AttendanceModel.find({
+        $and: [
+          req.query.name ? { name: { $regex: req.query.name, $options: 'i' } } : {},
+          req.query.day ? { day: { $regex: req.query.day, $options: 'i' } }  : {}
+        ]
+      });
+
+      if(!attendances){
+        return  res.status(401).json({message:'not found'})
+      }
+
+   return  res.status(200).json(attendances);
+  }  catch (error) {
+    console.log(error)
+    return  res.status(500).json({message:"Internal server error"})
+ }
+}
+
+const getAttendenceFile = async(req,res)=>{
+    try {
+        
+        const attendances = await AttendanceModel.find()
+
+       
+    const workbook = new exceljs.Workbook()
+    const worksheet = workbook.addWorksheet('Attendance');
+
+    worksheet.columns = [
+     { header: 'Date', key: 'date', width: 30 },
+      { header: 'Day', key: 'day', width: 30 },
+      { header: 'userID', key: 'userID', width: 30 },
+      { header: 'Name', key: 'name', width: 30 },
+      { header: 'Check-in Time', key: 'checkInTime', width: 30 },
+      { header: 'Check-out Time', key: 'checkOutTime', width: 30 },
+      { header: 'check-In-Early', key: 'checkInEarly', width: 30 },
+      { header: 'check-In-Late', key: 'checkInLate', width: 30 },
+      { header: 'check-Out-Early', key: 'checkOutEarly', width: 30 },
+      { header: 'check-Out-Late', key: 'checkOutLate', width: 30 },
+    ];
+
+   
+    attendances.forEach(att => {
+      worksheet.addRow({
+        date:att.date,
+        day:att.day,
+        _id: att._id,
+        name: att.name,
+        checkInTime: att.checkIn,
+        checkOutTime: att.checkOut,
+        checkInEarly: att.checkInEarly,
+        checkInLate:att.checkInLate,
+        checkOutEarly:att.checkOutEarly,
+        checkOutLate:att.checkOutLate,
+        
+      });
+    });
+
+   
+
+    worksheet.getRow(1).eachCell((cell) => {
+        { cell.font = { bold: true } }
+    })
+    res.setHeader(
+        "Content-Type",
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=transactions.xlsx`
+    )
+
+
+    return workbook.xlsx.write(res).then(() =>
+        console.log('excel file downloaded')
+    )
+
+
+    } catch (error) {
+        console.log(error)
+    return  res.status(500).json({message:"Internal server error"})
+    }
+}
+
+export {CreateUser,login, updateUser, deleteUser, addOfficeTimings, addInOutTimings, getAttendence, getAttendenceFile}
